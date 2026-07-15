@@ -44,7 +44,7 @@ Both pipelines are evaluated on the same dataset with macro-averaged and per-spe
 ├── README.md
 └── docs/
     ├── literature_review.pdf              # 15-paper LR matrix
-    └── progress_report.pdf                # Internship progress report
+    └── progress_doc.pdf                # progress doc
 ```
 
 ---

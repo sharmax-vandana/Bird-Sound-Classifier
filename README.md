@@ -17,10 +17,12 @@ Both pipelines are evaluated on the same dataset with macro-averaged and per-spe
 |-------------------------------|:-------:|:--------:|:---------:|:--------:|:-----------:|
 | YAMNet + SVM (RBF)            | 67.08%  | 68.12%   | —         | 0.646    | —           |
 | YAMNet + MLP (512, 256)       | 64.89%  | 68.44%   | —         | 0.636    | —           |
-| **YAMNet + Random Forest**  | 69.91%  | **70.00%** | 67.34%  | **0.654** | 0.696      |
+| **YAMNet + Random Forest**    | 69.91%  | **70.00%** | 67.34%  | **0.654** | 0.696      |
 | MobileNetV2 (fine-tuned)      | 53.74%  | 57.01%   | 50.80%    | 0.451    | 0.563       |
 
 **Key finding:** Audio-domain transfer (YAMNet + classical ML) outperformed image-domain transfer (MobileNetV2 on mel-spectrograms) by approximately 13 percentage points in test accuracy and 20 points in macro-F1 on this dataset.
+
+**Secondary finding:** Within the YAMNet pipeline, all three classifier families landed within a ~2 percentage-point band on test accuracy, suggesting the informational content of the YAMNet embeddings is the dominant factor and downstream classifier choice a secondary one.
 
 ---
 
@@ -31,7 +33,7 @@ Both pipelines are evaluated on the same dataset with macro-averaged and per-spe
 - **Source:** [Kaggle dataset link](https://www.kaggle.com/datasets/soumendraprasad/sound-of-114-species-of-birds-till-2022)
 - **Advertised size:** 3,336 recordings across 114 species
 - **Working sample count after ingestion:** 2,161 recordings
-- **Effective species after rare-class filtering:** 100 (YAMNet pipeline, ≥5 samples), 102 (CNN pipeline, ≥4 samples)
+- **Effective species after rare-class filtering:** 100 (YAMNet pipeline, ≥5 samples), 102 (MobileNetV2 pipeline, ≥4 samples)
 
 ---
 
@@ -44,7 +46,7 @@ Both pipelines are evaluated on the same dataset with macro-averaged and per-spe
 ├── README.md
 └── docs/
     ├── literature_review.pdf              # 15-paper LR matrix
-    └── progress_doc.pdf                # progress doc
+    └── progress_report.pdf                # Internship progress report
 ```
 
 ---
@@ -65,7 +67,7 @@ Located in `BirdSound_YAMNet_ML_v2.ipynb`.
 
 ### Key output artifacts
 - `yamnet_embeddings.csv` — cached 1024-dim embeddings
-- `final_metrics.json` — consolidated results for paper's Table 1
+- `final_metrics.json` — consolidated results
 - `per_species_accuracy.csv` — per-species accuracy, precision, recall, F1
 - Confusion matrix + top confusion pairs for error analysis
 
@@ -145,25 +147,18 @@ A literature review of 15 recent bird bioacoustic classification papers identifi
 1. Most studies commit to a single transfer learning paradigm (either audio-domain OR image-domain) — few compare the two on the same dataset.
 2. When pretrained embeddings are used, typically only one downstream classifier is evaluated (commonly logistic regression).
 3. Prior work commonly reports only overall accuracy, hiding poor performance on rare long-tail species.
-4. Studies at high accuracy typically use very small species pools (10-20 species) or bird-specific pretrained models (BirdNET, Perch) that are not available for many taxa.
+4. Studies at high accuracy typically use very small species pools (10–20 species) or bird-specific pretrained models (BirdNET, Perch) that are not available for many taxa.
 
 Full literature review matrix available in `docs/literature_review.pdf`.
 
 ---
 
-## Limitations and Next Steps
+## Limitations
 
-**Known limitations at this stage:**
-- Two pipelines currently use slightly different filtering thresholds (≥5 vs ≥4 samples per class) and split ratios (70/15/15 vs 80/10/10). Standardizing to identical splits is a planned next step.
-- 12–14 rare species are dropped due to insufficient samples for stratified splitting.
-- Only single-seed runs completed — multi-seed statistical validation planned.
-
-**Planned improvements:**
-- Align both pipelines to identical species filtering and identical train/val/test splits
-- Multi-seed runs (3–5) to report accuracy ± std
-- BirdNET-embedding comparison as a bird-specific upper bound
-- Ensembling of the two paradigms (logit averaging)
-- Streamlit demo for interactive top-K prediction
+- The two pipelines use slightly different filtering thresholds (≥5 vs ≥4 samples per class) and split ratios (70/15/15 vs 80/10/10). Both satisfy the 100+ species scope stated in the problem framing, but this pipeline-level threshold difference is documented as a limitation of the experimental setup.
+- 12–14 rare species were dropped from each pipeline due to insufficient samples for stratified splitting.
+- Long-tail species (1–3 test samples) drive most of the classification error, with per-species accuracy showing a bimodal distribution.
+- Single-seed runs; multi-seed statistical validation was not performed within the internship's experimental phase.
 
 ---
 
